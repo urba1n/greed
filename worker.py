@@ -670,7 +670,8 @@ class Worker(threading.Thread):
                     self.Price(self.cfg["Payments"]["CreditCard"]["max_amount"]):
                 self.__make_payment(self.Price(credit_required))
         # If afer requested payment credit is still insufficient (either payment failure or cancel)
-        if self.user.credit < self.__get_cart_value(cart):
+        if self.cfg["Payments"]["CreditCard"]["credit_card_token"] != "" \
+            and self.user.credit < self.__get_cart_value(cart):
             # Rollback all the changes
             self.session.rollback()
         else:
@@ -1464,6 +1465,10 @@ class Worker(threading.Thread):
         keyboard = []
         options: Dict[str, str] = {}
         # https://en.wikipedia.org/wiki/List_of_language_names
+        if "fr_ch" in self.cfg["Language"]["enabled_languages"]:
+            lang = "🇨🇭 Français"
+            keyboard.append([telegram.KeyboardButton(lang)])
+            options[lang] = "fr_ch"
         if "it" in self.cfg["Language"]["enabled_languages"]:
             lang = "🇮🇹 Italiano"
             keyboard.append([telegram.KeyboardButton(lang)])
@@ -1533,3 +1538,4 @@ class Worker(threading.Thread):
         # Close the database session
         # End the process
         sys.exit(0)
+
